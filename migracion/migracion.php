@@ -2,7 +2,7 @@
 
 require 'funciones.php';
 
-$db = get_connection('test1');
+$db = get_connection('test2');
 
 if ($db) {
    $tables = testTables(
@@ -12,6 +12,7 @@ if ($db) {
          'paises', 'books', 'purchases', 'books_purchases'
       ]
    );
+
    $allTablesOk = allTablesOk($tables);
 }
 else {

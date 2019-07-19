@@ -13,16 +13,8 @@ class User
    private $password;
    private $creationDate;
 
-   public function __construct(int $id, string $firstName, string $lastName, string $email, string $countryCode, string $birthDate, string $sex, string $avatarUrl, string $password) {
-      $this->id = $id;
-      $this->firstName = $firstName;
-      $this->lastName = $lastName;
-      $this->email = $email;
-      $this->countryCode = $countryCode;
-      $this->birthDate = $birthDate;
-      $this->sex = $sex;
-      $this->avatarUrl = $avatarUrl;
-      $this->password = $password;
+   public function __construct() {
+
    }
 
    public function getId() : int {
@@ -58,6 +50,9 @@ class User
    }
 
    public function getAvatarUrl() : string {
+//     $ext = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
+//       move_uploaded_file($_FILES["avatar"]["tmp_name"], "img/". $_POST["email"]. "." .$ext);
+
       return $this->avatarUrl;
    }
 
@@ -65,7 +60,46 @@ class User
       return $this->password;
    }
 
-   private static function createInstance(array $row) : User {
+   public function setId($id) : int {
+      $this->id = $id;
+   }
+   public function setFirstName($firstName) : string {
+      $this->firstName = $firstName;
+   }
+
+   public function setLastName($lastName) : string {
+      $this->lastName = $lastName;
+   }
+
+   public function setEmail($email) : string {
+      $this->email = $email;
+   }
+
+   public function setCountryCode($countryCode) : string {
+      $this->countryCode = $countryCode;
+   }
+
+   public function setBirthDate($birthDate) : string {
+      $this->birthDate = $birthDate;
+   }
+
+   public function setCreationDate($createdAt) : string {
+      $this->creationDate = $createdAt;
+   }
+
+   public function setSex($sex) : string {
+      $this->sex = $sex;
+   }
+
+   public function setAvatarUrl($avatarUrl) : string {
+      $this->avatarUrl = $avatarUrl;
+   }
+
+   public function setPassword($password) : string {
+      $this->password = $password;
+   }
+
+   public static function createInstance(array $row) : User {
       $user = new User(
          $row['id'],
          $row['first_name'],

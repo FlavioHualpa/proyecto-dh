@@ -2,7 +2,7 @@
 
 require 'funciones.php';
 
-$db = get_connection();
+$db = get_connection('test2');
 
 if ($db) {
    $tablas = [
@@ -16,7 +16,7 @@ if ($db) {
          $stmt = $db->prepare($query);
          $stmt->execute();
       } catch (\Exception $e) {
-
+        die($e->getMessage());
       }
    }
 
