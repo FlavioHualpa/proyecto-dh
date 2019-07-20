@@ -49,7 +49,7 @@ class User
       return $this->sex;
    }
 
-   public function getAvatarUrl() : string {
+   public function getAvatarUrl() : ?string {
 //     $ext = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
 //       move_uploaded_file($_FILES["avatar"]["tmp_name"], "img/". $_POST["email"]. "." .$ext);
 
@@ -62,41 +62,52 @@ class User
 
    public function setId($id) : int {
       $this->id = $id;
+      return $this;
    }
-   public function setFirstName($firstName) : string {
+   public function setFirstName($firstName) {
       $this->firstName = $firstName;
+      return $this;
    }
 
-   public function setLastName($lastName) : string {
+   public function setLastName($lastName) {
       $this->lastName = $lastName;
+      return $this;
    }
 
-   public function setEmail($email) : string {
+   public function setEmail($email)
+   {
       $this->email = $email;
-   }
+      return $this;
+    }
 
-   public function setCountryCode($countryCode) : string {
+   public function setCountryCode($countryCode) {
       $this->countryCode = $countryCode;
+      return $this;
    }
 
-   public function setBirthDate($birthDate) : string {
+   public function setBirthDate($birthDate) {
       $this->birthDate = $birthDate;
+      return $this;
    }
 
-   public function setCreationDate($createdAt) : string {
+   public function setCreationDate($createdAt) {
       $this->creationDate = $createdAt;
+      return $this;
    }
 
-   public function setSex($sex) : string {
+   public function setSex($sex) {
       $this->sex = $sex;
+      return $this;
    }
 
-   public function setAvatarUrl($avatarUrl) : string {
+   public function setAvatarUrl($avatarUrl) {
       $this->avatarUrl = $avatarUrl;
+      return $this;
    }
 
-   public function setPassword($password) : string {
+   public function setPassword($password) {
       $this->password = $password;
+      return $this;
    }
 
    public static function createInstance(array $row) : User {
@@ -139,10 +150,10 @@ class User
       return $users;
    }
 
-   public static function select(StorageInterface $storage, int $id) : ?User {
+   public static function select(StorageInterface $storage, array $condicion) : ?User {
       if ($storage instanceof DbStorage) {
-         $storage->setQuery('SELECT * FROM users WHERE id = :id');
-         $rows = $storage->select([ 'id' => $id ]);
+         $storage->setQuery('SELECT * FROM users WHERE ' . $condicion[0] . '= :id');
+         $rows = $storage->select([ $condicion[0] => $condicion[1] ]);
       }
       elseif ($storage instanceOf JsonStorage) {
          $rows = $storage->select([ 'id' => $id ]);
@@ -162,10 +173,10 @@ class User
       if ($storage instanceof DbStorage) {
          $storage->setQuery('INSERT INTO users
             (first_name, last_name, email, country_code,
-            birth_date, sex, password, avatar_url)
+            birth_date, sex, password, avatar_url, created_at)
             VALUES (:first_name, :last_name, :email,
             :country_code, :birth_date, :sex,
-            :password, :avatar_url)'
+            :password, :avatar_url, :created_at)'
          );
          $exito = $storage->insert($datos);
       }
@@ -181,6 +192,7 @@ class User
          $user = self::createInstance($datos);
          return $user;
       }
+      var_dump($storage->getErrorInfo());
       return null;
    }
 }

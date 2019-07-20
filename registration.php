@@ -6,15 +6,12 @@ require_once 'src/entities/DbStorage.php';
 require_once 'src/entities/JsonStorage.php';
 require_once 'src/validation/UserValidator.php';
 require_once 'src/entities/Auth.php';
-require_once 'src/entities/Factory.php';
+require_once 'DataSourceSetUp.php'; //con esto nos conectamos a la base de datos, en db.ini definimos si queremos json o db.
 
-$storage = new DbStorage; //En caso de usar json cambiar por new JsonStorage
-$storage->connect();
 $auth = new Auth; //Con esto, se inicia la sesión session_start();
 
-
 if($auth->usuarioLogueado()){ //Se chequea que el usuario esté logueado, que tenga una $_SESSION iniciada.
-  header("Location:index.php");//Se está logueado te lleva a index.php.
+  header("Location:index.php");//Se está logueado te l1leva a index.php.
   exit;
 }
 
@@ -27,49 +24,43 @@ try {
 
       $errors = $validator->getErrors();
 
-      $nombre = $_FILES['avatar']['name'];
-      $ext = pathinfo($nombre, PATHINFO_EXTENSION);
-      $origen = $_FILES['avatar']['tmp_name'];
-      $destino = "img/" . $_POST['email'] . $ext;
-      move_uploaded_file($origen, $destino);
-      $ruta = pathinfo($destino);
-
-      $user = new User;
-      $storage = Factory::getDataSource('db');
-      $user->setFirstName($_POST['nombre']);
-      $user->setLastName($_POST['apellido']);
-      $user->setEmail($_POST['email']);
-      $user->setCountryCode($_POST['paisNacimiento']);
-      $user->setBirthDate($_POST['nacimiento']);
-      $user->setSex($_POST['sexo']);
-      $user->setPassword($_POST['pass']);
-      $user->setAvatarUrl($ruta);
-
-      var_dump($user); die;
 
       if(empty($errors)){
-        $user = new User;
-        $storage = Factory::getDataSource('db');
-        $user->createInstance($_POST);
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['name'] != '') {
+          $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+          $origen = $_FILES['avatar']['tmp_name'];
+          $ruta = "uploads/" . $_POST['email'] . "." . $ext;
+          move_uploaded_file($origen, $ruta);
+        } else {
+          $ruta = null;
+        };
 
-        $user->insert($storage, [
-          'first_name' => $_POST['nombre'],
-          'last_name' => $_POST['apellido'],
+
+        $user = User::insert($storage, [
+          'first_name' => $_POST['first_name'],
+          'last_name' => $_POST['last_name'],
           'email' => $_POST['email'],
-          'country_code' => $_POST['paisNacimiento'],
-          'birth_date' => $_POST['nacimiento'],
-          'sex' => $_POST['sexo'],
-          'password' => $_POST['pass'],
+          'country_code' => $_POST['country_code'],
+          'birth_date' => $_POST['birth_date'],
+          'sex' => $_POST['sex'],
+          'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
           'avatar_url' => $ruta,
+          'created_at' => date('Y-m-d')
         ]);
+
+            header ('location: index.php');
+            exit;
       }
     }
   }
     catch (\Exception $e) {
-        die($e->getMessage());
-      }
+      die($e->getMessage());
+    }
 
-
+//    if ($user == null) {
+//      echo 'NO SE PUDO AGREGAR EL USUARIO';
+//      die();
+//  }
 
 
 //        $ext = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
@@ -186,14 +177,14 @@ $paises = leer_json('datos/paises.json');
           <fieldset>
             <legend>Creá tu cuenta </legend>
               <p>
-                <label for="nombre">Nombre:</label>
-                <input id="nombre" type="text" name="nombre" value="<?= $_POST['nombre'] ?? '' ?>">
-                <p class="error-regist"><?= $errors["nombre"][0] ?? "" ?></p>
+                <label for="first_name">Nombre:</label>
+                <input id="nombre" type="text" name="first_name" value="<?= $_POST['first_name'] ?? '' ?>">
+                <p class="error-regist"><?= $errors["first_name"][0] ?? "" ?></p>
               </p>
               <p>
-                <label for="apellido">Apellido:</label>
-                <input id="apellido" type="text" name="apellido" value="<?= $_POST['apellido'] ?? '' ?>">
-                <p class="error-regist"><?= $errors["apellido"][0] ?? "" ?></p>
+                <label for="last_name">Apellido:</label>
+                <input id="apellido" type="text" name="last_name" value="<?= $_POST['last_name'] ?? '' ?>">
+                <p class="error-regist"><?= $errors["last_name"][0] ?? "" ?></p>
               </p>
 <!--                <p>
                 <label for="usuario">Usuario:</label>
@@ -206,31 +197,31 @@ $paises = leer_json('datos/paises.json');
                 <p class="error-regist"><?= $errors["email"][0] ?? "" ?></p>
               </p>
               <p>
-                <label for="paisNacimiento">País de Nacimiento:</label>
-                <select name="paisNacimiento" id="paisNacimiento">
+                <label for="country_code">País de Nacimiento:</label>
+                <select name="country_code" id="paisNacimiento">
                   <?php foreach ($paises as $codigo => $pais):?>
-                    <option value="<?= $codigo ?>" <?= isset($_POST['paisNacimiento']) && $_POST['paisNacimiento'] == $codigo ? 'selected' : '' ?>><?= $pais ?></option>
+                    <option value="<?= $codigo ?>" <?= isset($_POST['country_code']) && $_POST['country_code'] == $codigo ? 'selected' : '' ?>><?= $pais ?></option>
                   <?php endforeach ?>
                 </select>
               </p>
               <p>
-                <label for="nacimiento">Fecha de Nacimiento:</label>
-                <input id="nacimiento" type="date" name="nacimiento" value="<?= $_POST['nacimiento'] ?? '' ?>">
-                <p class="error-regist"><?= $errors["nacimiento"][0] ?? '' ?></p>
+                <label for="birth_date">Fecha de Nacimiento:</label>
+                <input id="nacimiento" type="date" name="birth_date" value="<?= $_POST['birth_date'] ?? '' ?>">
+                <p class="error-regist"><?= $errors["birth_date"][0] ?? '' ?></p>
               </p>
               <p>
                 <label>Sexo:</label>
                 <div class="sexo">
                   <div class="sexo_fem">
-                    <input id="mujer" type="radio" name="sexo" value="f" <?= isset($_POST['sexo']) && $_POST['sexo'] == 'f' ? 'checked' : '' ?>>
+                    <input id="mujer" type="radio" name="sex" value="f" <?= isset($_POST['sex']) && $_POST['sex'] == 'f' ? 'checked' : '' ?>>
                     <label for="mujer">Femenino</label>
                   </div>
                   <div class="sexo_masc">
-                    <input id="hombre" type="radio" name="sexo" value="m" <?= isset($_POST['sexo']) && $_POST['sexo'] == 'm' ? 'checked' : '' ?>>
+                    <input id="hombre" type="radio" name="sexo" value="m" <?= isset($_POST['sex']) && $_POST['sex'] == 'm' ? 'checked' : '' ?>>
                     <label for="hombre">Masculino</label>
                   </div>
                 </div>
-                <p class="error-regist"><?= $errors["sexo"][0] ?? "" ?></p>
+                <p class="error-regist"><?= $errors["sex"][0] ?? "" ?></p>
               </p>
               <p>
                 <!-- <div class="avatar_button"> -->
@@ -243,10 +234,10 @@ $paises = leer_json('datos/paises.json');
                 <!-- </div> -->
               </p>
               <p>
-                <label for="pass">Ingresar Contraseña:</label>
-                <input id="pass" type="password" name="pass" value="">
+                <label for="password">Ingresar Contraseña:</label>
+                <input id="pass" type="password" name="password" value="">
               </p>
-              <p class="error-regist"><?= $errors["pass"][0] ?? "" ?></p>
+              <p class="error-regist"><?= $errors["password"][0] ?? "" ?></p>
               <p>
                 <label for="pass2">Reingresar Contraseña:</label>
                 <input id="pass2" type="password" name="pass2" value="">

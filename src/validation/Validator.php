@@ -24,30 +24,35 @@ abstract class Validator
         return array_key_exists($key, $array);
     }
 
-    public function isValid()
+    public function isEmpty($key, $array)
     {
-      return empty($this->errors);
+      return empty($array[$key]);
     }
 
     public function isStringWithNumber($key, $array)
     {
-      return strpbrk($key, "0123456789");
+      return strpbrk($array[$key], "0123456789");
     }
 
     public function isYoungerThan($age, $key, $array)
     {
-      return (time()-strtotime($key))/(60*60*24*365.25) < $age;
+      return (time()-strtotime($array[$key]))/(60*60*24*365.25) < $age;
     }
 
     public function passwordLength($key, $array)
     {
-      if(strlen(($array[$key]) < 6) || (strlen($array[$key]) > 12)){
+      if((strlen($array[$key]) < 6) || (strlen($array[$key]) > 12)){
         return true;
       }
     }
     public function passwordRepeat($key1, $key2, $array)
     {
-      return ($key1 != $key2);
+      return ($array[$key1] != $array[$key2]);
+    }
+
+    public function emailRepeat($key, $array)
+    {
+      }
     }
   }
 
