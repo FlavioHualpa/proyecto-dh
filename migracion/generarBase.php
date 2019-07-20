@@ -2,7 +2,7 @@
 
 require 'funciones.php';
 
-$db = get_connection('');
+$db = get_connection('test2');
 
 if ($db) {
    $query = 'CREATE DATABASE test1 CHARACTER SET = utf8';

@@ -16,7 +16,7 @@ if ($db) {
          $stmt = $db->prepare($query);
          $stmt->execute();
       } catch (\Exception $e) {
-
+        die($e->getMessage());
       }
    }
 

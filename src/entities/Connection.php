@@ -11,7 +11,7 @@ abstract class Connection
       }
       catch (Exception $e)
       {
-         return null;
+         die($e->getMessage());
       }
 
       return $pdo;

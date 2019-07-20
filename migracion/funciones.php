@@ -82,12 +82,7 @@ function allTablesOk(array $tables) : bool {
 }
 
 function get_connection(string $dbName = null) : ?PDO {
-   try {
-      $config = parse_ini_file('../src/config/db.ini');
-   }
-   catch (\Exception $e) {
-      $config = null;
-   }
+    $config = parse_ini_file('../src/config/db.ini');
 
    $db = null;
 
@@ -100,6 +95,7 @@ function get_connection(string $dbName = null) : ?PDO {
          $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       }
       catch (\Exception $e) {
+        die($e->getMessage());
       }
    }
 
