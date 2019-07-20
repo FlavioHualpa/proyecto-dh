@@ -2,7 +2,7 @@
 
 require 'funciones.php';
 
-$db = get_connection();
+$db = get_connection('test1');
 
 if ($db) {
    $tablas = [
